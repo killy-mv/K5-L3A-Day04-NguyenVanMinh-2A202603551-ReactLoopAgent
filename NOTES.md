@@ -71,32 +71,49 @@ Changed **`agent.py`**, leaving fixtures, expected answers, grading code and pro
 
 **Offline validation:** `py -3.14 -m unittest discover -s tests -v` passed **39/39** tests after implementation, including the two previously failing `EvidenceGateTests`.
 
-## 4. Before/after comparison (complete after CP6)
+## 4. Before/after comparison (CP6 completed)
 
-Same config required in both evaluations: `gemini` / `gemini-3.5-flash-lite` as agent and judge, `max_steps=8`, dataset `core`, snapshot inputs unchanged.
+Both evals used exactly the same configuration: `gemini` / `gemini-3.5-flash-lite` for both agent and judge, `max_steps=8`, `core` dataset, and the same status snapshot/scenarios. Both have **22/22 cases scored** and a non-null overall score.
 
-| Metric | `eval_before.json` | `eval_after.json` |
-|---|---:|---:|
-| Scored cases | 22/22 | Pending CP6 |
-| Overall score / 100 | 94.77 | Pending CP6 |
-| E2 score / 100 | 100 | Pending CP6 |
-| Agent model calls (all cases) | 57 | Pending CP6 |
-| Agent tokens (all cases) | 58674 | Pending CP6 |
-| Judge tokens (all cases) | 43984 | Pending CP6 |
-| E2 model calls | 3 | Pending CP6 |
-| E2 agent tokens | 2755 | Pending CP6 |
+| Metric | `eval_before.json` | `eval_after.json` | Difference |
+|---|---:|---:|---:|
+| Scored cases | 22/22 | 22/22 | 0 |
+| Overall score / 100 | 94.77 | 95.91 | +1.14 |
+| E2 score / 100 | 100 | 100 | +0 |
+| E2 verified incident URL in answer | No | Yes | Fixed |
+| Evidence-gate trace events | 0 | 9 | +9 |
+| Agent model calls (all cases) | 57 | 62 | +5 |
+| Agent tokens (all cases) | 58674 | 77386 | +18712 |
+| Judge tokens (all cases) | 43984 | 42820 | -1164 |
+| Total reported tokens | 102658 | 120206 | +17548 |
+| E2 agent model calls | 3 | 4 | +1 |
+| E2 agent tokens | 2755 | 4264 | +1509 |
 
-**Improvement to check:** Missing incident-detail URLs should trigger a revision event and, when the budget permits, a corrected answer. E2 already scored 100, so the improvement should be evaluated using trace/source validation, not just the judge's numerical score.
+### Evidence-gate confirmation in E2
 
-**Known baseline weaknesses not claimed fixed:** H2 scored 50 due to missing required `get_status`; H7 scored 35 because agent accepted a user-requested false operational inference after a Cloudflare timeout. These require separate analysis and are not addressed by this single evidence-gate change.
+- The before answer did **not** include the successful incident detail URL: `https://www.cloudflarestatus.com/incidents/wp49bp8bqo6c`.
+- The after trace contains `validation_missing_source`; Gemini generated a revised answer including the exact URL above.
+- E2 stayed at **100/100** in both runs. That is expected because the original judge had already awarded full points, despite the missing specific source link.
+- Across all cases, the after trace contains **9 source-validation events**. These are direct mechanical evidence of the implemented behavior, independent of the judge score.
 
-**Actual CP6 result:** Pending. Do not claim improved score, token count or cost before generating and inspecting `eval_after.json`.
+### Other score changes
+
+- **H7:** 35 -> 60 points.
+
+H7 increased, but its after trace contains no `validation_missing_source`. Therefore this score change **cannot be attributed to Evidence Gate** based on available evidence; model output or judge variability is a plausible explanation. H2 still scored **50** because it did not call the required `get_status` tool. H7 still gave an unsupported operational conclusion following a Cloudflare timeout and therefore remains a known weakness, despite the higher score.
+
+### API usage and operational notes
+
+The after run experienced temporary infrastructure failures: H1's judge returned HTTP 503, and H8's agent provider failed during a call. The resumable evaluator retried H1 **using its saved completed agent trace** and reran H8 with the original settings; ultimately both were scored. The final JSON files contain the full set of 22 case outcomes.
+
+More agent calls and tokens were consumed after Evidence Gate (model calls 57 -> 62; agent tokens 58674 -> 77386). Judge token totals can vary between runs. USD cost cannot be determined from these files because no actual billing or per-token pricing data is recorded. The shown token sums reflect only successful, recorded usage, not necessarily failed or retried API requests.
 
 ## 5. Limitations
 
-- The LLM judge is approximate and can award a perfect score even when an incident URL is absent; judge and agent use the same model, which may introduce bias.
-- Snapshot data from 2026-11-09 is historical, not evidence of the current live service state.
-- One run before and one run after do not establish reproducibility or statistical reliability.
-- Evidence Gate validates only URL presence, not that each individual factual claim is supported by that URL.
-- Revisions use additional model calls/tokens and may increase quota consumption or exhaust `max_steps`.
-- A case can still score poorly for missing tool calls or unsafe conclusions even when its incident URL is present.
+- The LLM judge is an approximate evaluator, not ground truth. It can award 100 even when an incident-specific source URL is missing. The agent and judge also use the same model, which may introduce bias.
+- The 2026-11-09 status snapshot is historical. Its status and incidents should not be described as live service conditions.
+- These are single before/after eval samples: a +1.14 change in mean score does not establish a statistically reliable or causal performance improvement.
+- Evidence Gate validates only whether known tool URLs appear as exact substrings of the final answer, **not** whether each claim is accurate or supported by the cited URL.
+- Revisions add model calls/tokens and can exhaust `max_steps` or increase use of free-tier quotas. A successful source revision does not imply better judge score.
+- H2's missing status check and H7's unsupported conclusion after a Cloudflare timeout remain unaddressed; they are separate from the single CP5 Evidence Gate change.
+- Aggregate token counts are model-reported and exclude unsuccessful requests for which no usage was recorded; monetary cost was not measured.

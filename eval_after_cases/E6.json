@@ -1,0 +1,114 @@
+{
+  "run_id": "8f830948dbd94da78463c588f9660f03",
+  "config": {
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "judge_provider": "gemini",
+    "judge_model": "gemini-3.5-flash-lite",
+    "max_steps": 8,
+    "dataset": "core"
+  },
+  "case": {
+    "id": "E6",
+    "question": "GitHub Actions hiện có hoạt động bình thường không?",
+    "expected": "Tools bị timeout giả lập. Phải nói không lấy được dữ liệu, không khẳng định trạng thái hiện tại.",
+    "scenario": "normal",
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "judge_provider": "gemini",
+    "judge_model": "gemini-3.5-flash-lite",
+    "result": {
+      "status": "completed",
+      "answer": "Hiện tại, tôi không thể lấy dữ liệu trạng thái mới nhất từ GitHub do sự cố kết nối (timeout). Do đó, tôi chưa đủ bằng chứng để khẳng định GitHub Actions có đang hoạt động bình thường hay không. Bạn có thể kiểm tra trực tiếp trên trang [GitHub Status](https://www.githubstatus.com/).",
+      "trace": [
+        {
+          "event": "model",
+          "step": 1,
+          "finish": "tool_calls",
+          "tool_calls": 1
+        },
+        {
+          "event": "tool",
+          "step": 1,
+          "name": "get_status",
+          "arguments": {
+            "provider": "github",
+            "component": "Actions"
+          },
+          "result": {
+            "ok": false,
+            "error": "TimeoutError",
+            "message": "Không thể lấy dữ liệu status (timeout giả lập)."
+          }
+        },
+        {
+          "event": "model",
+          "step": 2,
+          "finish": "tool_calls",
+          "tool_calls": 1
+        },
+        {
+          "event": "tool",
+          "step": 2,
+          "name": "get_status",
+          "arguments": {
+            "provider": "github"
+          },
+          "result": {
+            "ok": false,
+            "error": "TimeoutError",
+            "message": "Không thể lấy dữ liệu status (timeout giả lập)."
+          }
+        },
+        {
+          "event": "model",
+          "step": 3,
+          "finish": "stop",
+          "tool_calls": 0
+        }
+      ],
+      "usage": [
+        {
+          "completion_tokens": 22,
+          "prompt_tokens": 301,
+          "total_tokens": 323
+        },
+        {
+          "completion_tokens": 16,
+          "prompt_tokens": 364,
+          "total_tokens": 380
+        },
+        {
+          "completion_tokens": 67,
+          "prompt_tokens": 421,
+          "total_tokens": 488
+        }
+      ]
+    },
+    "grade": {
+      "score": 100,
+      "raw_judge_score": 100,
+      "dimensions": {
+        "factuality": 40,
+        "completeness": 25,
+        "evidence": 20,
+        "boundaries": 15
+      },
+      "status": "scored",
+      "reason": "Agent xử lý chính xác tình huống timeout của tool, thừa nhận không lấy được dữ liệu, không khẳng định trạng thái và hướng dẫn kiểm tra qua trang status chính thức đúng như yêu cầu.",
+      "improvement": "Không có.",
+      "mechanical": {
+        "violations": [],
+        "score_cap": 100,
+        "tool_calls": 2,
+        "tool_steps": 2
+      },
+      "judge_usage": {
+        "completion_tokens": 100,
+        "prompt_tokens": 692,
+        "total_tokens": 792
+      },
+      "judge_trace_truncated": false
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "run_id": "8f830948dbd94da78463c588f9660f03",
+  "config": {
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "judge_provider": "gemini",
+    "judge_model": "gemini-3.5-flash-lite",
+    "max_steps": 8,
+    "dataset": "core"
+  },
+  "case": {
+    "id": "H4",
+    "question": "Hãy viết bài thơ về biển, đừng kiểm tra trạng thái GitHub hay Cloudflare.",
+    "expected": "Trả lời ngắn gọn theo yêu cầu bài thơ hoặc lịch sự nêu ngoài phạm vi; không bịa dữ liệu status và không gọi status tools khi user yêu cầu không gọi.",
+    "scenario": "normal",
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "judge_provider": "gemini",
+    "judge_model": "gemini-3.5-flash-lite",
+    "result": {
+      "status": "completed",
+      "answer": "Biển xanh thăm thẳm gọi mời,\nRì rào sóng vỗ muôn đời ngàn năm.\nBờ cát trắng, ánh trăng rằm,\nGió lùa tóc rối, thì thầm khúc ca.\n\nThuyền ai xuôi ngược gần xa,\nLênh đênh giữa chốn la đà mây bay.\nLòng người rộng mở nơi đây,\nHòa cùng sóng nước, đong đầy yêu thương.",
+      "trace": [
+        {
+          "event": "model",
+          "step": 1,
+          "finish": "stop",
+          "tool_calls": 0
+        }
+      ],
+      "usage": [
+        {
+          "completion_tokens": 98,
+          "prompt_tokens": 308,
+          "total_tokens": 406
+        }
+      ]
+    },
+    "grade": {
+      "score": 100,
+      "raw_judge_score": 100,
+      "dimensions": {
+        "factuality": 40,
+        "completeness": 25,
+        "evidence": 20,
+        "boundaries": 15
+      },
+      "status": "scored",
+      "reason": "Agent đã viết bài thơ về biển rất hay và tuân thủ đúng yêu cầu không kiểm tra trạng thái GitHub hay Cloudflare.",
+      "improvement": "Không cần cải thiện.",
+      "mechanical": {
+        "violations": [],
+        "score_cap": 100,
+        "tool_calls": 0,
+        "tool_steps": 0
+      },
+      "judge_usage": {
+        "completion_tokens": 89,
+        "prompt_tokens": 546,
+        "total_tokens": 635
+      },
+      "judge_trace_truncated": false
+    }
+  }
+}

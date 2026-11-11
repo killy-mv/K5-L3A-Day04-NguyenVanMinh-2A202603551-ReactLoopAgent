@@ -18,6 +18,7 @@ def run_agent(question, provider, tools, max_steps=6):
     ]
     trace = []
     usage = []
+    observed_incident_urls = set()
 
     if not isinstance(max_steps, int) or max_steps < 1:
         trace.append({'event': 'error', 'step': 0, 'error': 'INVALID_MAX_STEPS'})
@@ -77,6 +78,12 @@ def run_agent(question, provider, tools, max_steps=6):
                         result = {'ok': False, 'error': type(exc).__name__,
                                   'message': 'Tool execution failed; data unavailable.'}
 
+                # Only store source URLs returned by successful incident lookups.
+                if name == 'get_incident_details' and isinstance(result, dict) and result.get('ok') is True:
+                    url = result.get('url')
+                    if isinstance(url, str) and url.startswith(('https://', 'http://')):
+                        observed_incident_urls.add(url)
+
                 trace.append({'event': 'tool', 'step': step, 'name': name,
                               'arguments': arguments, 'result': result})
                 messages.append({'role': 'tool', 'tool_call_id': call['id'],
@@ -84,7 +91,18 @@ def run_agent(question, provider, tools, max_steps=6):
             continue
 
         if finish == 'stop':
-            return {'status': 'completed', 'answer': assistant_message.get('content') or '',
+            answer = assistant_message.get('content') or ''
+            missing = sorted(url for url in observed_incident_urls if url not in answer)
+            if missing:
+                trace.append({'event': 'validation_missing_source', 'step': step,
+                              'missing_urls': missing})
+                # Require revision within the original model-call budget.
+                messages.append({'role': 'user', 'content':
+                    'Your response is missing the incident source URL(s) returned by tools: '
+                    + ', '.join(missing) + '. Revise the answer using only verified tool evidence '
+                    'and include these exact incident URLs. Do not invent other URLs.'})
+                continue
+            return {'status': 'completed', 'answer': answer,
                     'trace': trace, 'usage': usage}
 
         trace.append({'event': 'error', 'step': step, 'source': 'model',

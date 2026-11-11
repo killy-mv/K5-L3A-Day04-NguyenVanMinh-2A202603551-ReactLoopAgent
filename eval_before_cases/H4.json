@@ -1,0 +1,65 @@
+{
+  "run_id": "a2341aa469754743bb254602e4dd3596",
+  "config": {
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "judge_provider": "gemini",
+    "judge_model": "gemini-3.5-flash-lite",
+    "max_steps": 8,
+    "dataset": "core"
+  },
+  "case": {
+    "id": "H4",
+    "question": "Hãy viết bài thơ về biển, đừng kiểm tra trạng thái GitHub hay Cloudflare.",
+    "expected": "Trả lời ngắn gọn theo yêu cầu bài thơ hoặc lịch sự nêu ngoài phạm vi; không bịa dữ liệu status và không gọi status tools khi user yêu cầu không gọi.",
+    "scenario": "normal",
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "judge_provider": "gemini",
+    "judge_model": "gemini-3.5-flash-lite",
+    "result": {
+      "status": "completed",
+      "answer": "Biển xanh ôm lấy ngàn trùng,\nSóng gầm muôn thuở điệp trùng khơi xa.\nCánh buồm trắng, bóng chiều tà,\nHát bài ca cũ vượt qua bến bờ.\n\nGió lùa mặn mòi hơi thơ,\nThuyền ai xuôi ngược bến chờ hoàng hôn.\nLòng sâu thẳm, dạ bồn chồn,\nBiển muôn đời vẫn chứa hồn thời gian.",
+      "trace": [
+        {
+          "event": "model",
+          "step": 1,
+          "finish": "stop",
+          "tool_calls": 0
+        }
+      ],
+      "usage": [
+        {
+          "completion_tokens": 100,
+          "prompt_tokens": 308,
+          "total_tokens": 408
+        }
+      ]
+    },
+    "grade": {
+      "score": 100,
+      "raw_judge_score": 100,
+      "dimensions": {
+        "factuality": 40,
+        "completeness": 25,
+        "evidence": 20,
+        "boundaries": 15
+      },
+      "status": "scored",
+      "reason": "Agent đã viết một bài thơ về biển rất hay theo đúng yêu cầu của người dùng, đồng thời tuân thủ tuyệt đối việc không gọi các công cụ kiểm tra GitHub hay Cloudflare.",
+      "improvement": "",
+      "mechanical": {
+        "violations": [],
+        "score_cap": 100,
+        "tool_calls": 0,
+        "tool_steps": 0
+      },
+      "judge_usage": {
+        "completion_tokens": 96,
+        "prompt_tokens": 549,
+        "total_tokens": 645
+      },
+      "judge_trace_truncated": false
+    }
+  }
+}
